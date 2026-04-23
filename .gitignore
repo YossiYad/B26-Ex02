@@ -1,0 +1,21 @@
+# Visual Studio / .NET
+bin/
+obj/
+packages/
+.vs/
+*.user
+*.suo
+
+# Build outputs
+*.exe
+*.dll
+*.pdb
+
+# IDE files
+*.vspx
+*.rar
+*.zip
+
+# Temp files
+*.tmp
+*.log
