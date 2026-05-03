@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using FacebookWrapper.ObjectModel;
 using FacebookWrapper;
+using System.Collections;
 
 namespace BasicFacebookFeatures
 {
@@ -17,8 +18,7 @@ namespace BasicFacebookFeatures
 
 		private User m_LoggedInUser;
 		private FacebookWrapper.LoginResult m_LoginResult;
-		private FriendsAnalyzer m_FriendAnalyzer;
-		private PhotoArchiver m_PhotoArchiver;
+		private FacebookFacade m_FacebookFacade;
 
 		private void buttonLogin_Click(object sender, EventArgs e)
 		{
@@ -65,7 +65,7 @@ namespace BasicFacebookFeatures
 		{
 			m_LoggedInUser = m_LoginResult.LoggedInUser;
 			
-			m_PhotoArchiver = new PhotoArchiver(m_LoggedInUser);
+			m_FacebookFacade = new FacebookFacade(m_LoggedInUser);
 
 			buttonLogin.Text = string.Format("Logged in as {0}", m_LoginResult.LoggedInUser.Name);
 			buttonLogin.BackColor = Color.LightGreen;
@@ -75,7 +75,6 @@ namespace BasicFacebookFeatures
 			pictureBoxProfile.LoadAsync(m_LoggedInUser.PictureNormalURL);
 			this.Text = string.Format("Logged in as {0}", m_LoggedInUser.Name);
 
-			m_FriendAnalyzer = new FriendsAnalyzer(m_LoggedInUser); 
 		}
 
 		private void buttonLogout_Click(object sender, EventArgs e)
@@ -86,170 +85,302 @@ namespace BasicFacebookFeatures
 			m_LoginResult = null;
 			buttonLogin.Enabled = true;
 			buttonLogout.Enabled = false;
-			m_FriendAnalyzer = null; 
 			pictureBoxProfile.Image = null;
+			m_FacebookFacade = null;
 		}
 
 		private void buttonFindActiveFriends_Click(object sender, EventArgs e)
 		{
-			if (m_FriendAnalyzer == null)
-			{
-				MessageBox.Show("Please login first");
-				return;
-			}
+            if (m_FacebookFacade == null)
+            {
+                MessageBox.Show("Please login first");
+                return;
+            }
 
-			if (!m_FriendAnalyzer.IsAnalyzed)
+            prepareUIForAnalyzis(true);
+
+			new System.Threading.Thread(() => { analyzeFriends(true); }).Start();
+		}
+
+		private void prepareUIForAnalyzis(bool i_IsActiveFriends)
+		{
+			listBoxFriends.Items.Clear();
+			if (!i_IsActiveFriends)
 			{
-				labelStatus.Text = "Status: Analyzing Facebook data...";
-				labelStatus.ForeColor = Color.AliceBlue;
+				if (!m_FacebookFacade.IsAnalyzed)
+				{
+					labelStatus.Text = "Status: Analyzing Facebook data...";
+					labelStatus.ForeColor = Color.AliceBlue;
+				}
+				else
+				{
+					labelStatus.Text = "Status: Fetching data from memory...";
+					labelStatus.ForeColor = Color.Green;
+				}
+
+				buttonFindActiveFriends.Enabled = false;
 			}
 			else
 			{
-				labelStatus.Text = "Status: Fetching data from memory...";
-				labelStatus.ForeColor = Color.Green;
+				labelStatus.Text = "Status: Searchisng for Ghost Friends...";
+				labelStatus.ForeColor = Color.Blue;
+				buttonFindGhostFriends.Enabled = false;
+			}
+        }
+
+		//private void analyzeActiveFriends()
+		//{
+  //          try
+  //          {
+  //              m_FacebookFacade.AnalyzeInteractions();
+
+  //              if (m_FacebookFacade.UsingDummyData && !m_FacebookFacade.HasRealFriends)
+  //              {
+  //                 List<DummyFriend> dummyActiveFriends = m_FacebookFacade.GetDummyActiveFriends(10);
+
+  //                  this.Invoke(new Action(delegate ()
+  //                  {
+  //                      MessageBox.Show("The Facebook API currently restricts access to friends, likes and comments.\nDisplaying generated Dummy Data for demonstration purposes.",
+  //                                      "API Limitation", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+		//				displayActiveFriendResult(dummyActiveFriends, true);
+  //                  })); 
+  //              }
+  //              else
+  //              {
+		//			List<User> topActiveFriends = m_FacebookFacade.GetActiveFriends(10);
+
+  //                  if (m_FacebookFacade.UsingDummyData)
+  //                  {
+  //                      this.Invoke(new Action(delegate ()
+  //                      {
+  //                          MessageBox.Show("The Facebook API currently restricts access to likes and comments.\nDisplaying generated Dummy Data for demonstration purposes.",
+  //                                          "API Limitation", MessageBoxButtons.OK, MessageBoxIcon.Information);
+  //                      }));
+  //                  }
+
+  //                  listBoxFriends.Invoke(new Action(delegate ()
+  //                  {
+		//				displayActiveFriendResult(topActiveFriends, false);
+  //                  }));
+  //              }
+  //          }
+  //          catch (Exception ex)
+  //          {
+  //              MessageBox.Show("An error occurred: " + ex.Message);
+  //          }
+  //          finally
+  //          {
+  //              buttonFindActiveFriends.Invoke(new Action(delegate ()
+  //              {
+  //                  buttonFindActiveFriends.Enabled = true;
+  //              }));
+  //          }
+  //      }
+
+		//private void displayActiveFriendResult(object i_FriendsList, bool i_IsDummy)
+		//{
+		//	if (i_IsDummy)
+		//	{
+		//		listBoxFriends.DisplayMember = "";
+		//		foreach (DummyFriend friend in (List<DummyFriend>) i_FriendsList)
+		//		{
+		//			listBoxFriends.Items.Add(friend);
+		//		}
+
+		//		labelStatus.Text = "Status: Analysis Complete (Dummy Data)";
+		//	}
+
+		//	else
+		//	{
+  //              listBoxFriends.DisplayMember = "Name";
+		//		foreach (User friend in (List<User>) i_FriendsList)
+		//		{
+		//			listBoxFriends.Items.Add(friend);
+		//		}
+
+		//		labelStatus.Text = "Status: Analysis Complete";
+		//	}
+
+  //          labelStatus.ForeColor = Color.Green;
+  //      }
+
+        private void buttonFindGhostFriends_Click(object sender, EventArgs e)
+		{
+			if (m_FacebookFacade == null)
+			{
+				return;
 			}
 
-			buttonFindActiveFriends.Enabled = false;
-			listBoxFriends.Items.Clear();
+			prepareUIForAnalyzis(false);
 
-			new System.Threading.Thread(delegate()
+			new System.Threading.Thread(() => { analyzeFriends(false); }).Start();
+		}
+
+		//private void analyzeGhostFriends()
+		//{
+		//	try
+		//	{
+		//		m_FacebookFacade.AnalyzeInteractions();
+
+		//		if (m_FacebookFacade.UsingDummyData && !m_FacebookFacade.HasRealFriends)
+		//		{
+		//			List<DummyFriend> dummyGhosts = m_FacebookFacade.GetDummyGhostFriends();
+
+		//			this.Invoke(new Action(delegate () { displayGhostFriendResult(dummyGhosts, true); }));
+		//		}
+		//		else
+		//		{
+		//			List<User> ghostFriends = m_FacebookFacade.GetGhostFriends();
+
+		//			this.Invoke(new Action(delegate () { displayGhostFriendResult(ghostFriends, false); }));
+		//		}
+		//	}
+		//	catch (Exception ex)
+		//	{
+		//		MessageBox.Show("An error occurred: " + ex.Message);
+		//	}
+		//	finally
+		//	{
+		//		buttonFindGhostFriends.Invoke(new Action(delegate ()
+		//		{
+		//			buttonFindGhostFriends.Enabled = true;
+		//		}));
+		//	}
+  //      }
+
+    //    private void displayGhostFriendResult(object i_FriendsList, bool i_IsDummy)
+    //    {
+    //        listBoxFriends.DisplayMember = "Name";
+
+    //        if (i_IsDummy)
+    //        {
+				//List<DummyFriend> dummyGhosts = (List<DummyFriend>) i_FriendsList;
+    //            foreach (DummyFriend friend in dummyGhosts)
+    //            {
+    //                listBoxFriends.Items.Add(friend);
+    //            }
+
+    //            labelStatus.Text = "Status: Found " + dummyGhosts.Count + " Dummy Ghost Friends";
+    //        }
+
+    //        else
+    //        {
+				//List<User> ghostFriends = (List<User>) i_FriendsList;
+    //            foreach (User friend in (List<User>)i_FriendsList)
+    //            {
+    //                listBoxFriends.Items.Add(friend);
+    //            }
+
+    //            labelStatus.Text = "Status: Found " + ghostFriends.Count + " Ghost Friends";
+    //        }
+
+    //        labelStatus.ForeColor = Color.Green;
+    //    }
+
+		private void analyzeFriends(bool i_IsActiveFriends)
+		{
+			try
 			{
-				try
+				m_FacebookFacade.AnalyzeInteractions();
+
+				bool isDummy = m_FacebookFacade.UsingDummyData && !m_FacebookFacade.HasRealFriends;
+				IEnumerable friendsToDisplay = null;
+
+				if (i_IsActiveFriends)
 				{
-					m_FriendAnalyzer.AnalyzeInteractions();
-
-					if (m_FriendAnalyzer.UsingDummyData && !m_FriendAnalyzer.HasRealFriends)
+					if (isDummy)
 					{
-						List<DummyFriend> dummyActive = m_FriendAnalyzer.GetDummyActiveFriends(10);
+						friendsToDisplay = m_FacebookFacade.GetDummyActiveFriends(10);
 
-						this.Invoke(new Action(delegate()
+						this.Invoke(new Action(() => 
 						{
 							MessageBox.Show("The Facebook API currently restricts access to friends, likes and comments.\nDisplaying generated Dummy Data for demonstration purposes.",
 											"API Limitation", MessageBoxButtons.OK, MessageBoxIcon.Information);
 						}));
-
-						listBoxFriends.Invoke(new Action(delegate()
-						{
-							listBoxFriends.DisplayMember = "";
-							foreach (DummyFriend friend in dummyActive)
-							{
-								listBoxFriends.Items.Add(friend);
-							}
-
-							labelStatus.Text = "Status: Analysis Complete (Dummy Data)";
-							labelStatus.ForeColor = Color.Green;
-						}));
 					}
 					else
 					{
-						List<User> topActiveFriends = m_FriendAnalyzer.GetActiveFriends(10);
+                        friendsToDisplay = m_FacebookFacade.GetActiveFriends(10);
 
-						if (m_FriendAnalyzer.UsingDummyData)
+						if (m_FacebookFacade.UsingDummyData)
 						{
-							this.Invoke(new Action(delegate()
+							this.Invoke(new Action(() =>
 							{
-								MessageBox.Show("The Facebook API currently restricts access to likes and comments.\nDisplaying generated Dummy Data for demonstration purposes.",
-												"API Limitation", MessageBoxButtons.OK, MessageBoxIcon.Information);
+							MessageBox.Show("The Facebook API currently restricts access to likes and comments.\nDisplaying generated Dummy Data for demonstration purposes.",
+											"API Limitation", MessageBoxButtons.OK, MessageBoxIcon.Information);
 							}));
 						}
-
-						listBoxFriends.Invoke(new Action(delegate()
-						{
-							listBoxFriends.DisplayMember = "Name";
-							foreach (User friend in topActiveFriends)
-							{
-								listBoxFriends.Items.Add(friend);
-							}
-
-							labelStatus.Text = "Status: Analysis Complete";
-							labelStatus.ForeColor = Color.Green;
-						}));
-					}
+                    }	
 				}
-				catch (Exception ex)
+
+				else
 				{
-					MessageBox.Show("An error occurred: " + ex.Message);
-				}
-				finally
-				{
-					buttonFindActiveFriends.Invoke(new Action(delegate()
+					if (isDummy)
 					{
-						buttonFindActiveFriends.Enabled = true;
-					}));
-				}
-			}).Start();
-		}
-
-		private void buttonFindGhostFriends_Click(object sender, EventArgs e)
-		{
-			if (m_FriendAnalyzer == null)
-			{
-				return;
-			}
-
-			labelStatus.Text = "Status: Searching for ghosts...";
-			labelStatus.ForeColor = Color.Blue;
-			buttonFindGhostFriends.Enabled = false;
-			listBoxFriends.Items.Clear();
-
-			new System.Threading.Thread(delegate()
-			{
-				try
-				{
-					m_FriendAnalyzer.AnalyzeInteractions();
-
-					if (m_FriendAnalyzer.UsingDummyData && !m_FriendAnalyzer.HasRealFriends)
-					{
-						List<DummyFriend> dummyGhosts = m_FriendAnalyzer.GetDummyGhostFriends();
-
-						listBoxFriends.Invoke(new Action(delegate()
-						{
-							listBoxFriends.DisplayMember = "Name";
-							foreach (DummyFriend ghost in dummyGhosts)
-							{
-								listBoxFriends.Items.Add(ghost);
-							}
-
-							labelStatus.Text = "Status: Found " + dummyGhosts.Count + " ghosts (Dummy Data).";
-							labelStatus.ForeColor = Color.Green;
-						}));
+						friendsToDisplay = m_FacebookFacade.GetDummyGhostFriends();
 					}
 					else
 					{
-						List<User> ghostFriends = m_FriendAnalyzer.GetGhostFriends();
-
-						listBoxFriends.Invoke(new Action(delegate()
-						{
-							listBoxFriends.DisplayMember = "Name";
-							foreach (User friend in ghostFriends)
-							{
-								listBoxFriends.Items.Add(friend);
-							}
-
-							labelStatus.Text = "Status: Found " + ghostFriends.Count + " ghosts.";
-							labelStatus.ForeColor = Color.Green;
-						}));
+						friendsToDisplay = m_FacebookFacade.GetGhostFriends();
 					}
 				}
-				catch (Exception ex)
+				this.Invoke(new Action(() => { displayFriendsResult(friendsToDisplay, isDummy, i_IsActiveFriends); }));
+			}
+
+            catch (Exception e)
+			{
+                this.Invoke(new Action (() => MessageBox.Show("An error occurred: " + e.Message)));
+            }
+
+			finally
+			{
+				this.Invoke(new Action(() =>
 				{
-					MessageBox.Show("An error occurred: " + ex.Message);
-				}
-				finally
-				{
-					buttonFindGhostFriends.Invoke(new Action(delegate()
+					if (i_IsActiveFriends)
+					{
+						buttonFindActiveFriends.Enabled = true;
+					}
+					else
 					{
 						buttonFindGhostFriends.Enabled = true;
-					}));
-				}
-			}).Start();
+					}
+				}));
+            }
 		}
-
-		private void buttonReset_Click(object sender, EventArgs e)
+		
+		private void displayFriendsResult(IEnumerable i_FriendsList, bool i_IsDummy, bool i_IsActiveFriends)
 		{
-			if (m_FriendAnalyzer != null)
+			if (i_IsDummy && i_IsActiveFriends)
 			{
-				m_FriendAnalyzer.ResetAnalyzer();
+				listBoxFriends.DisplayMember = "";
+			}
+			else
+			{
+				listBoxFriends.DisplayMember = "Name";
+			}
+
+			foreach (object friend in i_FriendsList)
+			{
+				listBoxFriends.Items.Add(friend);
+			}
+
+			if (i_IsActiveFriends)
+			{
+				labelStatus.Text = i_IsDummy ? "Status: Analysis Complete (Dummy Data)" : "Status: Analysis Complete";
+            }
+			else
+			{
+                labelStatus.Text = i_IsDummy ? "Status: Found Dummy Ghost Friends" : "Status: Found Ghost Friends";
+            }
+
+            labelStatus.ForeColor = Color.Green;
+        }
+        private void buttonReset_Click(object sender, EventArgs e)
+		{
+			if (m_FacebookFacade != null)
+			{
+				m_FacebookFacade.ResetAnalyzer();
 				listBoxFriends.Items.Clear();
 				pictureBoxFriend.Image = null;
 
@@ -323,47 +454,43 @@ namespace BasicFacebookFeatures
 				string destinationPath = folderDialog.SelectedPath;
 				buttonDownloadAlbum.Enabled = false;
 
-				new System.Threading.Thread(delegate()
+				List<Photo> photosToDownload = new List<Photo>();
+				foreach (Photo photo in selectedAlbum.Photos)
 				{
-					try
-					{
-						List<Photo> photosToDownload = new List<Photo>();
-						foreach (Photo photo in selectedAlbum.Photos)
-						{
-							photosToDownload.Add(photo);
-						}
+					photosToDownload.Add(photo);
+				}
 
-						m_PhotoArchiver.DownloadPhotos(photosToDownload, destinationPath);
+				new System.Threading.Thread(() => downloadPhotos(photosToDownload, destinationPath, buttonDownloadAlbum, "Album downloaded successfully")).Start();
+			}
+		}
 
-						this.Invoke(new Action(delegate()
-						{
-							MessageBox.Show("Album downloaded successfully!");
-						}));
-					}
-					catch (Exception ex)
-					{
-						MessageBox.Show("Error: " + ex.Message);
-					}
-					finally
-					{
-						buttonDownloadAlbum.Invoke(new Action(delegate()
-						{
-							buttonDownloadAlbum.Enabled = true;
-						}));
-					}
-				}).Start();
+		private void downloadPhotos (List<Photo> i_photosToDownload, string i_DestenationPath, Button i_SenderButton, string i_Message)
+		{
+			try
+			{
+				m_FacebookFacade.DownloadPhotos(i_photosToDownload, i_DestenationPath);
+
+				this.Invoke(new Action(() => MessageBox.Show(i_Message)));
+			}
+			catch (Exception e)
+			{
+				this.Invoke(new Action(() => MessageBox.Show("Error: " + e.Message)));
+			}
+			finally
+			{
+				this.Invoke(new Action(() => i_SenderButton.Enabled = true));
 			}
 		}
 
 		private void buttonMoveToArchive_Click(object sender, EventArgs e)
 		{
-			if (m_PhotoArchiver == null)
+			if (m_FacebookFacade == null)
 			{
 				return;
 			}
 
 			int yearsToArchive = (int)numericUpDownYears.Value;
-			List<Photo> oldPhotos = m_PhotoArchiver.GetPhotosOlderThan(yearsToArchive);
+			List<Photo> oldPhotos = m_FacebookFacade.GetPhotosOlderThan(yearsToArchive);
 
 			if (oldPhotos.Count == 0)
 			{
@@ -378,29 +505,9 @@ namespace BasicFacebookFeatures
 				string destinationPath = folderDialog.SelectedPath;
 				buttonMoveToArchive.Enabled = false;
 
-				new System.Threading.Thread(delegate()
-				{
-					try
-					{
-						m_PhotoArchiver.DownloadPhotos(oldPhotos, destinationPath);
+                string successMsg = "Finished archiving " + oldPhotos.Count + " photos!";
 
-						this.Invoke(new Action(delegate()
-						{
-							MessageBox.Show("Finished archiving " + oldPhotos.Count + " photos!");
-						}));
-					}
-					catch (Exception ex)
-					{
-						MessageBox.Show("Error: " + ex.Message);
-					}
-					finally
-					{
-						buttonMoveToArchive.Invoke(new Action(delegate()
-						{
-							buttonMoveToArchive.Enabled = true;
-						}));
-					}
-				}).Start();
+                new System.Threading.Thread(() => downloadPhotos(oldPhotos, destinationPath, buttonMoveToArchive, successMsg)).Start();
 			}
 		}
 

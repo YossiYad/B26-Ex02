@@ -83,6 +83,7 @@
     <Compile Include="DummyFriend.cs" />
     <Compile Include="eActionType.cs" />
     <Compile Include="eFriendFilterType.cs" />
+    <Compile Include="FacebookFacade.cs" />
     <Compile Include="FilterSettings.cs" />
     <Compile Include="FormActivityLog.cs">
       <SubType>Form</SubType>
