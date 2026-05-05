@@ -5,21 +5,21 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using FacebookWrapper.ObjectModel;
-
+using System.Collections;
 
 namespace BasicFacebookFeatures
 {
-    internal class FacebookFacade
+    public class FacebookFacade
     {
         private readonly User r_LoggedInUser;
-        private readonly FriendsAnalyzer r_FriendAnalyzer;
+        private readonly IFriendsAnalyzer r_FriendAnalyzer;
         private readonly PhotoArchiver r_PhotoArchiver;
         private readonly AppActivityLogger r_Logger;
 
         public FacebookFacade(User i_LoggedInUser)
         {
             r_LoggedInUser = i_LoggedInUser;
-            r_FriendAnalyzer = new FriendsAnalyzer(r_LoggedInUser);
+            r_FriendAnalyzer = new FriendsAnalyzerProxy(r_LoggedInUser);
             r_PhotoArchiver = new PhotoArchiver(r_LoggedInUser);
             r_Logger = AppActivityLogger.Instance;
         }
@@ -48,29 +48,29 @@ namespace BasicFacebookFeatures
             }
         }
 
-        public List<User> GetActiveFriends(int i_Amount)
+        public IEnumerable GetActiveFriends(int i_Amount)
         {
             r_Logger.Log(eActionType.AnalyzeFriends, string.Format("Finding top {0} Friends", i_Amount));
             return r_FriendAnalyzer.GetActiveFriends(i_Amount);
         }
 
-        public List<User> GetGhostFriends()
+        public IEnumerable GetGhostFriends()
         {
             r_Logger.Log(eActionType.AnalyzeFriends, "Finding Ghost Friends");
             return r_FriendAnalyzer.GetGhostFriends();
         }
 
-        public List<DummyFriend> GetDummyActiveFriends(int i_Amount)
-        {
-            r_Logger.Log(eActionType.AnalyzeFriends, string.Format("Finding top {0} Friends", i_Amount));
-            return r_FriendAnalyzer.GetDummyActiveFriends(i_Amount);
-        }
+        //public List<DummyFriend> GetDummyActiveFriends(int i_Amount)
+        //{
+        //    r_Logger.Log(eActionType.AnalyzeFriends, string.Format("Finding top {0} Friends", i_Amount));
+        //    return r_FriendAnalyzer.GetDummyActiveFriends(i_Amount);
+        //}
 
-        public List<DummyFriend> GetDummyGhostFriends()
-        {
-            r_Logger.Log(eActionType.AnalyzeFriends, "Finding Ghost Friends");
-            return r_FriendAnalyzer.GetDummyGhostFriends();
-        }
+        //public List<DummyFriend> GetDummyGhostFriends()
+        //{
+        //    r_Logger.Log(eActionType.AnalyzeFriends, "Finding Ghost Friends");
+        //    return r_FriendAnalyzer.GetDummyGhostFriends();
+        //}
 
         public void ResetAnalyzer()
         {

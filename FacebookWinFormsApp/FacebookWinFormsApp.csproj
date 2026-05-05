@@ -105,8 +105,10 @@
     </Compile>
     <Compile Include="FriendFilterBase.cs" />
     <Compile Include="FriendFilterFactory.cs" />
-    <Compile Include="FriendsAnalyzer.cs" />
+    <Compile Include="RealFriendsAnalyzer.cs" />
+    <Compile Include="FriendsAnalyzerProxy.cs" />
     <Compile Include="GhostFriendFilter.cs" />
+    <Compile Include="IFriendsAnalyzer.cs" />
     <Compile Include="LogEntry.cs" />
     <Compile Include="PhotoArchiver.cs" />
     <Compile Include="Program.cs" />

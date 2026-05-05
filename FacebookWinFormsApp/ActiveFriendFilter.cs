@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using FacebookWrapper.ObjectModel;
 
 namespace BasicFacebookFeatures
@@ -18,28 +19,44 @@ namespace BasicFacebookFeatures
         public override List<string> ApplyFilter(User i_LoggedInUser)
         {
             List<string> activeFriendsNames = new List<string>();
-            FriendsAnalyzer analyzer = new FriendsAnalyzer(i_LoggedInUser);
+            IFriendsAnalyzer analyzer = new FriendsAnalyzerProxy(i_LoggedInUser);
 
             analyzer.AnalyzeInteractions();
 
-            if (analyzer.UsingDummyData && !analyzer.HasRealFriends)
+            IEnumerable activeFriends = analyzer.GetActiveFriends(k_TopFriendsCount);
+
+            foreach (object friend in activeFriends)
             {
-                List<DummyFriend> dummyActive = analyzer.GetDummyActiveFriends(k_TopFriendsCount);
-                foreach (DummyFriend friend in dummyActive)
+                if (friend is User user)
                 {
-                    activeFriendsNames.Add(friend.Name);
+                    activeFriendsNames.Add(user.Name);
                 }
-            }
-            else
-            {
-                List<User> activeFriends = analyzer.GetActiveFriends(k_TopFriendsCount);
-                foreach (User friend in activeFriends)
+                else
                 {
-                    activeFriendsNames.Add(friend.Name);
+                    if (friend is DummyFriend dummy)
+                    {
+                        activeFriendsNames.Add(dummy.Name);
+                    }
                 }
             }
 
             return activeFriendsNames;
+            //if (analyzer.UsingDummyData && !analyzer.HasRealFriends)
+            //{
+            //    List<DummyFriend> dummyActive = analyzer.GetDummyActiveFriends(k_TopFriendsCount);
+            //    foreach (DummyFriend friend in dummyActive)
+            //    {
+            //        activeFriendsNames.Add(friend.Name);
+            //    }
+            //}
+            //else
+            //{
+            //    List<User> activeFriends = analyzer.GetActiveFriends(k_TopFriendsCount);
+            //    foreach (User friend in activeFriends)
+            //    {
+            //        activeFriendsNames.Add(friend.Name);
+            //    }
+            //}
         }
     }
 }

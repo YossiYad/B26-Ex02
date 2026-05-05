@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using FacebookWrapper.ObjectModel;
+using System.Collections;
 
 namespace BasicFacebookFeatures
 {
@@ -16,28 +17,41 @@ namespace BasicFacebookFeatures
         public override List<string> ApplyFilter(User i_LoggedInUser)
         {
             List<string> ghostFriendsNames = new List<string>();
-            FriendsAnalyzer analyzer = new FriendsAnalyzer(i_LoggedInUser);
+            IFriendsAnalyzer analyzer = new FriendsAnalyzerProxy(i_LoggedInUser);
 
             analyzer.AnalyzeInteractions();
 
-            if (analyzer.UsingDummyData && !analyzer.HasRealFriends)
+            IEnumerable ghostFriends = analyzer.GetGhostFriends();
+
+            foreach (object friend in ghostFriends)
             {
-                List<DummyFriend> dummyGhost = analyzer.GetDummyGhostFriends();
-                foreach (DummyFriend friend in dummyGhost)
+                if (friend is User user)
                 {
-                    ghostFriendsNames.Add(friend.Name);
+                    ghostFriendsNames.Add(user.Name);
                 }
-            }
-            else
-            {
-                List<User> ghostFriends = analyzer.GetGhostFriends();
-                foreach (User friend in ghostFriends)
+                else if (friend is DummyFriend dummy)
                 {
-                    ghostFriendsNames.Add(friend.Name);
+                    ghostFriendsNames.Add(dummy.Name);
                 }
             }
 
             return ghostFriendsNames;
+            //if (analyzer.UsingDummyData && !analyzer.HasRealFriends)
+            //{
+            //    List<DummyFriend> dummyGhost = analyzer.GetDummyGhostFriends();
+            //    foreach (DummyFriend friend in dummyGhost)
+            //    {
+            //        ghostFriendsNames.Add(friend.Name);
+            //    }
+            //}
+            //else
+            //{
+            //    List<User> ghostFriends = analyzer.GetGhostFriends();
+            //    foreach (User friend in ghostFriends)
+            //    {
+            //        ghostFriendsNames.Add(friend.Name);
+            //    }
+            //}
         }
     }
 }

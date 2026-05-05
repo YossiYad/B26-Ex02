@@ -105,7 +105,7 @@ namespace BasicFacebookFeatures
 		private void prepareUIForAnalyzis(bool i_IsActiveFriends)
 		{
 			listBoxFriends.Items.Clear();
-			if (!i_IsActiveFriends)
+			if (i_IsActiveFriends)
 			{
 				if (!m_FacebookFacade.IsAnalyzed)
 				{
@@ -122,7 +122,7 @@ namespace BasicFacebookFeatures
 			}
 			else
 			{
-				labelStatus.Text = "Status: Searchisng for Ghost Friends...";
+				labelStatus.Text = "Status: Searching for Ghost Friends...";
 				labelStatus.ForeColor = Color.Blue;
 				buttonFindGhostFriends.Enabled = false;
 			}
@@ -284,14 +284,16 @@ namespace BasicFacebookFeatures
 			{
 				m_FacebookFacade.AnalyzeInteractions();
 
-				bool isDummy = m_FacebookFacade.UsingDummyData && !m_FacebookFacade.HasRealFriends;
+				bool isDummy = m_FacebookFacade.UsingDummyData; // && !m_FacebookFacade.HasRealFriends;
 				IEnumerable friendsToDisplay = null;
 
 				if (i_IsActiveFriends)
 				{
+					friendsToDisplay = m_FacebookFacade.GetActiveFriends(10);
+
 					if (isDummy)
 					{
-						friendsToDisplay = m_FacebookFacade.GetDummyActiveFriends(10);
+						//friendsToDisplay = m_FacebookFacade.GetDummyActiveFriends(10);
 
 						this.Invoke(new Action(() => 
 						{
@@ -299,31 +301,32 @@ namespace BasicFacebookFeatures
 											"API Limitation", MessageBoxButtons.OK, MessageBoxIcon.Information);
 						}));
 					}
-					else
-					{
-                        friendsToDisplay = m_FacebookFacade.GetActiveFriends(10);
+					//else
+					//{
+     //                   friendsToDisplay = m_FacebookFacade.GetActiveFriends(10);
 
-						if (m_FacebookFacade.UsingDummyData)
-						{
-							this.Invoke(new Action(() =>
-							{
-							MessageBox.Show("The Facebook API currently restricts access to likes and comments.\nDisplaying generated Dummy Data for demonstration purposes.",
-											"API Limitation", MessageBoxButtons.OK, MessageBoxIcon.Information);
-							}));
-						}
-                    }	
+					//	if (m_FacebookFacade.UsingDummyData)
+					//	{
+					//		this.Invoke(new Action(() =>
+					//		{
+					//		MessageBox.Show("The Facebook API currently restricts access to likes and comments.\nDisplaying generated Dummy Data for demonstration purposes.",
+					//						"API Limitation", MessageBoxButtons.OK, MessageBoxIcon.Information);
+					//		}));
+					//	}
+     //               }	
 				}
 
 				else
 				{
-					if (isDummy)
-					{
-						friendsToDisplay = m_FacebookFacade.GetDummyGhostFriends();
-					}
-					else
-					{
-						friendsToDisplay = m_FacebookFacade.GetGhostFriends();
-					}
+					friendsToDisplay = m_FacebookFacade.GetGhostFriends();
+					//if (isDummy)
+					//{
+					//	friendsToDisplay = m_FacebookFacade.GetDummyGhostFriends();
+					//}
+					//else
+					//{
+					//	friendsToDisplay = m_FacebookFacade.GetGhostFriends();
+					//}
 				}
 				this.Invoke(new Action(() => { displayFriendsResult(friendsToDisplay, isDummy, i_IsActiveFriends); }));
 			}
@@ -337,14 +340,16 @@ namespace BasicFacebookFeatures
 			{
 				this.Invoke(new Action(() =>
 				{
-					if (i_IsActiveFriends)
-					{
-						buttonFindActiveFriends.Enabled = true;
-					}
-					else
-					{
-						buttonFindGhostFriends.Enabled = true;
-					}
+					buttonFindActiveFriends.Enabled = true;
+					buttonFindGhostFriends.Enabled = true;
+					//if (i_IsActiveFriends)
+					//{
+					//	buttonFindActiveFriends.Enabled = true;
+					//}
+					//else
+					//{
+					//	buttonFindGhostFriends.Enabled = true;
+					//}
 				}));
             }
 		}
@@ -376,7 +381,8 @@ namespace BasicFacebookFeatures
 
             labelStatus.ForeColor = Color.Green;
         }
-        private void buttonReset_Click(object sender, EventArgs e)
+        
+		private void buttonReset_Click(object sender, EventArgs e)
 		{
 			if (m_FacebookFacade != null)
 			{
@@ -399,10 +405,14 @@ namespace BasicFacebookFeatures
 				{
 					pictureBoxFriend.LoadAsync(selectedFriend.PictureNormalURL);
 				}
-				else
-				{
-					pictureBoxFriend.Image = null;
-				}
+				//else
+				//{
+				//	pictureBoxFriend.Image = null;
+				//}
+			}
+			else
+			{
+				pictureBoxFriend.Image = null;
 			}
 		}
 
