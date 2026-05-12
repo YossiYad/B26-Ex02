@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using FacebookWrapper.ObjectModel;
 using System.Collections;
 
@@ -36,22 +36,6 @@ namespace BasicFacebookFeatures
             }
 
             return ghostFriendsNames;
-            //if (analyzer.UsingDummyData && !analyzer.HasRealFriends)
-            //{
-            //    List<DummyFriend> dummyGhost = analyzer.GetDummyGhostFriends();
-            //    foreach (DummyFriend friend in dummyGhost)
-            //    {
-            //        ghostFriendsNames.Add(friend.Name);
-            //    }
-            //}
-            //else
-            //{
-            //    List<User> ghostFriends = analyzer.GetGhostFriends();
-            //    foreach (User friend in ghostFriends)
-            //    {
-            //        ghostFriendsNames.Add(friend.Name);
-            //    }
-            //}
         }
     }
 }

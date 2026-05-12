@@ -1,9 +1,4 @@
-﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using FacebookWrapper.ObjectModel;
 using System.Collections;
 
@@ -41,7 +36,7 @@ namespace BasicFacebookFeatures
 
         public void AnalyzeInteractions()
         {
-            if( !r_FriendAnalyzer.IsAnalyzed )
+            if (!r_FriendAnalyzer.IsAnalyzed)
             {
                 r_Logger.Log(eActionType.AnalyzeFriends, "Analyzing Friends Interactions had been started.");
                 r_FriendAnalyzer.AnalyzeInteractions();
@@ -51,26 +46,16 @@ namespace BasicFacebookFeatures
         public IEnumerable GetActiveFriends(int i_Amount)
         {
             r_Logger.Log(eActionType.AnalyzeFriends, string.Format("Finding top {0} Friends", i_Amount));
+
             return r_FriendAnalyzer.GetActiveFriends(i_Amount);
         }
 
         public IEnumerable GetGhostFriends()
         {
             r_Logger.Log(eActionType.AnalyzeFriends, "Finding Ghost Friends");
+
             return r_FriendAnalyzer.GetGhostFriends();
         }
-
-        //public List<DummyFriend> GetDummyActiveFriends(int i_Amount)
-        //{
-        //    r_Logger.Log(eActionType.AnalyzeFriends, string.Format("Finding top {0} Friends", i_Amount));
-        //    return r_FriendAnalyzer.GetDummyActiveFriends(i_Amount);
-        //}
-
-        //public List<DummyFriend> GetDummyGhostFriends()
-        //{
-        //    r_Logger.Log(eActionType.AnalyzeFriends, "Finding Ghost Friends");
-        //    return r_FriendAnalyzer.GetDummyGhostFriends();
-        //}
 
         public void ResetAnalyzer()
         {
@@ -80,7 +65,8 @@ namespace BasicFacebookFeatures
 
         public List<Photo> GetPhotosOlderThan(int i_Years)
         {
-            r_Logger.Log(eActionType.ArchivePhotos, string.Format( "Searching for Photo Older Than {0} years.", i_Years));
+            r_Logger.Log(eActionType.ArchivePhotos, string.Format("Searching for Photo Older Than {0} years.", i_Years));
+
             return r_PhotoArchiver.GetPhotosOlderThan(i_Years);
         }
 

@@ -1,8 +1,5 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Collections;
 using FacebookWrapper.ObjectModel;
 
@@ -22,6 +19,7 @@ namespace BasicFacebookFeatures
             m_DummyActiveFriends = new List<DummyFriend>();
             m_DummyGhostFriends = new List<DummyFriend>();
         }
+
         public bool UsingDummyData
         {
             get { return m_UsingDummyData; }
@@ -39,8 +37,10 @@ namespace BasicFacebookFeatures
 
         public void AnalyzeInteractions()
         {
-            if (IsAnalyzed) 
+            if (IsAnalyzed)
+            {
                 return;
+            }
 
             try
             {
@@ -55,22 +55,34 @@ namespace BasicFacebookFeatures
 
         public IEnumerable GetActiveFriends(int i_FriendsAmount)
         {
+            IEnumerable result;
+
             if (m_UsingDummyData)
             {
-                return m_DummyActiveFriends.GetRange(0, Math.Min(i_FriendsAmount, m_DummyActiveFriends.Count));
+                result = m_DummyActiveFriends.GetRange(0, Math.Min(i_FriendsAmount, m_DummyActiveFriends.Count));
+            }
+            else
+            {
+                result = r_RealFriendsAnalyzer.GetActiveFriends(i_FriendsAmount);
             }
 
-            return r_RealFriendsAnalyzer.GetActiveFriends(i_FriendsAmount);
+            return result;
         }
 
         public IEnumerable GetGhostFriends()
         {
+            IEnumerable result;
+
             if (m_UsingDummyData)
             {
-                return m_DummyGhostFriends;
+                result = m_DummyGhostFriends;
+            }
+            else
+            {
+                result = r_RealFriendsAnalyzer.GetGhostFriends();
             }
 
-            return r_RealFriendsAnalyzer.GetGhostFriends();
+            return result;
         }
 
         public void ResetAnalyzer()
@@ -108,6 +120,7 @@ namespace BasicFacebookFeatures
             foreach (string name in activeNames)
             {
                 int score = i_Random.Next(5, 80);
+
                 activeFriendScores.Add(new KeyValuePair<string, int>(name, score));
             }
 
@@ -116,7 +129,7 @@ namespace BasicFacebookFeatures
                 activeFriendScores.Add(new KeyValuePair<string, int>(name, 0));
             }
 
-            activeFriendScores.Sort(delegate (KeyValuePair<string, int> first, KeyValuePair<string, int> second)
+            activeFriendScores.Sort(delegate(KeyValuePair<string, int> first, KeyValuePair<string, int> second)
             {
                 return second.Value.CompareTo(first.Value);
             });

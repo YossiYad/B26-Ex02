@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cp \"C:\\\\Projects\\\\B26-Ex02\\\\Ex02 Yossi 207687898 Nour 316068410.docx\" \"C:\\\\Projects\\\\B26-Ex02\\\\__doc_extract.zip\")",
+      "Bash(mkdir -p \"C:\\\\Projects\\\\B26-Ex02\\\\__doc_extract\")",
+      "Bash(unzip -o \"../__doc_extract.zip\")",
+      "Bash(python3 -c ' *)",
+      "Bash(grep -rn \"//\" \"C:\\\\Projects\\\\B26-Ex02\\\\FacebookWinFormsApp\" --include=\"*.cs\" --exclude=\"*.Designer.cs\" --exclude-dir=obj --exclude-dir=bin)",
+      "Bash(cd \"C:\\\\Projects\\\\B26-Ex02\" && git log --all --diff-filter=D --name-only -- \"FBApi/*.dll\" 2>&1 | head -20 && echo \"---\" && find \"C:\\\\Users\\\\YossiYadgar\\\\Desktop\" -name \"*.dll\" 2>&1 | grep -i facebook | head -10 && echo \"---bin---\" && ls \"C:\\\\Projects\\\\B26-Ex02\\\\FacebookWinFormsApp\\\\bin\" 2>&1)",
+      "Bash(cp \"C:\\\\Users\\\\YossiYadgar\\\\Desktop\\\\B26 Ex02 YossiYadgar 207687898 NourAzizy 316068410\\\\FBApi\\\\Facebook.dll\" \"C:\\\\Projects\\\\B26-Ex02\\\\FBApi\\\\Facebook.dll\")",
+      "Bash(cp \"C:\\\\Users\\\\YossiYadgar\\\\Desktop\\\\B26 Ex02 YossiYadgar 207687898 NourAzizy 316068410\\\\FBApi\\\\FbGraphApiWrapper.dll\" \"C:\\\\Projects\\\\B26-Ex02\\\\FBApi\\\\FbGraphApiWrapper.dll\")",
+      "Read(//c/Program Files/**)",
+      "Read(//c//**)"
+    ]
+  }
+}

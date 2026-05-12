@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using FacebookWrapper.ObjectModel;
 
@@ -41,22 +41,6 @@ namespace BasicFacebookFeatures
             }
 
             return activeFriendsNames;
-            //if (analyzer.UsingDummyData && !analyzer.HasRealFriends)
-            //{
-            //    List<DummyFriend> dummyActive = analyzer.GetDummyActiveFriends(k_TopFriendsCount);
-            //    foreach (DummyFriend friend in dummyActive)
-            //    {
-            //        activeFriendsNames.Add(friend.Name);
-            //    }
-            //}
-            //else
-            //{
-            //    List<User> activeFriends = analyzer.GetActiveFriends(k_TopFriendsCount);
-            //    foreach (User friend in activeFriends)
-            //    {
-            //        activeFriendsNames.Add(friend.Name);
-            //    }
-            //}
         }
     }
 }
